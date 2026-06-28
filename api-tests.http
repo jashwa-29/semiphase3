@@ -1,0 +1,325 @@
+@baseUrl = http://localhost:5000/api
+@token = {{login.response.body.data.accessToken}}
+
+### ==========================================
+### 1. HEALTH AND BASIC ROUTES
+### ==========================================
+
+### Basic Route
+GET http://localhost:5000/
+
+### Health Check
+GET {{baseUrl}}/health
+
+### ==========================================
+### 2. AUTHENTICATION (authRoutes.ts)
+### ==========================================
+
+### Register a User
+POST {{baseUrl}}/auth/register
+Content-Type: application/json
+
+{
+  "name": "Test User",
+  "email": "testuser@example.com",
+  "password": "Password123!"
+}
+
+### Login User
+# @name login
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "testuser@example.com",
+  "password": "Password123!"
+}
+
+### Logout User
+POST {{baseUrl}}/auth/logout
+Content-Type: application/json
+
+### Refresh Token
+POST {{baseUrl}}/auth/refresh-token
+Content-Type: application/json
+
+{
+  "token": "{{login.response.body.data.refreshToken}}"
+}
+
+### Forgot Password
+POST {{baseUrl}}/auth/forgot-password
+Content-Type: application/json
+
+{
+  "email": "testuser@example.com"
+}
+
+### Reset Password
+# Note: Provide the 6-digit OTP received in the email
+POST {{baseUrl}}/auth/reset-password
+Content-Type: application/json
+
+{
+  "token": "REPLACE_WITH_OTP_FROM_EMAIL",
+  "newPassword": "NewPassword123!"
+}
+
+### Verify Email
+# Note: You need to extract the verificationToken generated in the DB to use this
+GET {{baseUrl}}/auth/verify-email/REPLACE_WITH_VERIFICATION_TOKEN_FROM_DB
+
+### ==========================================
+### 3. USERS (userRoutes.ts)
+### ==========================================
+
+### Get All Users
+GET {{baseUrl}}/users
+Authorization: Bearer {{token}}
+
+### Register User (Alternative via User Route)
+POST {{baseUrl}}/users
+Content-Type: application/json
+
+{
+  "name": "Jane Doe",
+  "email": "janedoe@example.com",
+  "password": "Password123!"
+}
+
+### ==========================================
+### 4. INSTITUTES (instituteRoutes.ts)
+### ==========================================
+
+### Apply for Institute
+# Note: Ensure you have local placeholder PDF files (e.g. commitment.pdf, etc.) in the active folder to run this request.
+POST {{baseUrl}}/institutes/apply
+Authorization: Bearer {{token}}
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
+
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="orgName"
+
+Swiflare General Hospital
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="constitutionType"
+
+Trust
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="instituteAddress"
+
+123 Healthcare Boulevard, Sector 4, Mumbai
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="registeredOfficeAddress"
+
+456 Swiflare Corporate Plaza, Mumbai
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="phoneNumber"
+
+9876543210
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="emailAddress"
+
+hospital@swiflare.com
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="commencementDate"
+
+2027-06-30
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="seatsRequested"
+
+5
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="officePhone"
+
+022-12345678
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="website"
+
+https://swiflare.com
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="headName"
+
+Dr. Rajesh Khanna
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="headDesignation"
+
+Dean & Executive Director
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="hodName"
+
+Dr. Ananya Sen
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="bedCount"
+
+12
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="physicianAvailability"
+
+Yes
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="physicianExperience"
+
+36
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="courseDirectorEMQualified"
+
+Yes
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="emFacultyCount"
+
+3
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="teachingSpace"
+
+Yes
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="nabhStatus"
+
+Yes
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="paymentBankName"
+
+HDFC Bank
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="paymentTxnNo"
+
+TXN987654321
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="paymentTxnDate"
+
+2026-06-01
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="authorizedRepName"
+
+Dr. Rajesh Khanna
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="authorizedRepDesignation"
+
+Course Director
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="facultyCommitmentLetter"; filename="commitment.pdf"
+Content-Type: application/pdf
+
+< ./commitment.pdf
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="equipmentList"; filename="equipment.pdf"
+Content-Type: application/pdf
+
+< ./equipment.pdf
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="facultyList"; filename="faculty.pdf"
+Content-Type: application/pdf
+
+< ./faculty.pdf
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="emergencyOPDStatistics"; filename="opd.pdf"
+Content-Type: application/pdf
+
+< ./opd.pdf
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="libraryBookList"; filename="library.pdf"
+Content-Type: application/pdf
+
+< ./library.pdf
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="trainingMannequinList"; filename="mannequins.pdf"
+Content-Type: application/pdf
+
+< ./mannequins.pdf
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="diagnosticEquipmentList"; filename="diagnostic.pdf"
+Content-Type: application/pdf
+
+< ./diagnostic.pdf
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="declarationLetter"; filename="declaration.pdf"
+Content-Type: application/pdf
+
+< ./declaration.pdf
+------WebKitFormBoundary7MA4YWxkTrZu0gW--
+
+
+### Create Razorpay Order
+POST {{baseUrl}}/institutes/payment/create-order
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+### Verify Razorpay Payment (or Legacy /payment)
+POST {{baseUrl}}/institutes/payment/verify
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "razorpay_order_id": "REPLACE_WITH_ORDER_ID_FROM_CREATE_ORDER_RESPONSE",
+  "razorpay_payment_id": "pay_mock_123456",
+  "razorpay_signature": "mock_signature_hex_code_if_real_mode"
+}
+
+
+
+
+### Review Application (Board/Admin)
+# Replace INSTITUTE_ID_HERE with a valid ObjectId
+POST {{baseUrl}}/institutes/INSTITUTE_ID_HERE/review
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "status": "Approved",
+  "remarks": "All documentation, infrastructure, and faculty checks have successfully passed."
+}
+
+### ==========================================
+### 6. MODULE 3 — ELIGIBILITY ENGINE (Use Case 3.1)
+### ==========================================
+
+### 6.1 List All Courses (GET /api/academic/courses)
+GET {{baseUrl}}/academic/courses
+Authorization: Bearer {{token}}
+
+### 6.2 List All Batches (GET /api/academic/batches)
+GET {{baseUrl}}/academic/batches
+Authorization: Bearer {{token}}
+
+### 6.3 List All Students with Eligibility Status
+GET {{baseUrl}}/academic/students
+Authorization: Bearer {{token}}
+
+### 6.4 List Eligible Students Only
+GET {{baseUrl}}/academic/students?isEligible=true
+Authorization: Bearer {{token}}
+
+### 6.5 List Not-Eligible Students Only
+GET {{baseUrl}}/academic/students?isEligible=false
+Authorization: Bearer {{token}}
+
+### 6.6 Search Students by Name or Enrollment ID
+GET {{baseUrl}}/academic/students?search=SEMI
+Authorization: Bearer {{token}}
+
+### 6.7 Update Academic Metrics for a Student (PATCH)
+# Replace STUDENT_ID_HERE with a real student _id from the list above
+PATCH {{baseUrl}}/academic/students/STUDENT_ID_HERE/academic-metrics
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "attendancePercentage": 82,
+  "thesisApproved": true
+}
+
+### 6.8 Evaluate Eligibility for a Specific Student (GET)
+# Replace STUDENT_ID_HERE with a real student _id
+GET {{baseUrl}}/academic/students/STUDENT_ID_HERE/eligibility
+Authorization: Bearer {{token}}
+
+### 6.9 Make Student NOT Eligible (low attendance, thesis pending)
+PATCH {{baseUrl}}/academic/students/STUDENT_ID_HERE/academic-metrics
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "attendancePercentage": 60,
+  "thesisApproved": false
+}

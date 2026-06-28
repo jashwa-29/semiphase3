@@ -1,0 +1,2416 @@
+{
+  "info": {
+    "_postman_id": "semi-phase3-v6",
+    "name": "Semi Phase 3 - Complete API Collection",
+    "description": "Full backend API.\nBase URL: http://localhost:5000\n\nsuper_admin: superadmin@academy.com / SuperAdmin123!\n\nExam Lifecycle:\n  Pending → Approved → SchedulePublished → (generate hall tickets)\n            ↘ Rejected (any point by board)",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:5000"
+    },
+    {
+      "key": "accessToken",
+      "value": ""
+    },
+    {
+      "key": "refreshToken",
+      "value": ""
+    },
+    {
+      "key": "superAdminToken",
+      "value": ""
+    },
+    {
+      "key": "instituteId",
+      "value": ""
+    },
+    {
+      "key": "studentId",
+      "value": ""
+    },
+    {
+      "key": "courseId",
+      "value": ""
+    },
+    {
+      "key": "batchId",
+      "value": ""
+    },
+    {
+      "key": "examApplicationId",
+      "value": ""
+    },
+    {
+      "key": "hallTicketId",
+      "value": ""
+    }
+  ],
+  "item": [
+    {
+      "name": "🏥 Health",
+      "item": [
+        {
+          "name": "GET Health",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/health",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "health"
+              ]
+            },
+            "description": "200=healthy, 503=DB down"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "🔐 Auth",
+      "item": [
+        {
+          "name": "POST Register (Institute)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "var j=pm.response.json(); if(j.data&&j.data.userId) pm.collectionVariables.set('registeredUserId',j.data.userId);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"City General Hospital\",\n  \"email\": \"hospital@example.com\",\n  \"password\": \"SecurePass123\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/auth/register",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "register"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "GET Verify Email",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/auth/verify-email/:token",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "verify-email",
+                ":token"
+              ],
+              "variable": [
+                {
+                  "key": "token",
+                  "value": "PASTE_TOKEN_FROM_DB",
+                  "description": "db.users.findOne().verificationToken"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "POST Login (Institute)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "var j=pm.response.json(); if(j.data&&j.data.accessToken){ pm.collectionVariables.set(\"accessToken\",j.data.accessToken); pm.collectionVariables.set(\"refreshToken\",j.data.refreshToken); }"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"hospital@example.com\",\n  \"password\": \"SecurePass123\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/auth/login",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "login"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "POST Login (Super Admin)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "var j=pm.response.json(); if(j.data&&j.data.accessToken) pm.collectionVariables.set(\"superAdminToken\",j.data.accessToken);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"superadmin@academy.com\",\n  \"password\": \"SuperAdmin123!\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/auth/login",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "login"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "POST Logout",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/auth/logout",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "logout"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "POST Refresh Token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "var j=pm.response.json(); if(j.data&&j.data.accessToken) pm.collectionVariables.set(\"accessToken\",j.data.accessToken);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"{{refreshToken}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/auth/refresh-token",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "refresh-token"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "POST Forgot Password (Send OTP)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"hospital@example.com\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/auth/forgot-password",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "forgot-password"
+              ]
+            },
+            "description": "Sends 6-digit OTP. Valid 10 mins."
+          },
+          "response": []
+        },
+        {
+          "name": "POST Reset Password (Use OTP)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"123456\",\n  \"newPassword\": \"NewSecurePass456\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/auth/reset-password",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "reset-password"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "👤 Users (Super Admin Only)",
+      "item": [
+        {
+          "name": "GET All Users",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{superAdminToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/users",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "users"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "POST Create Admin / Board User",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{superAdminToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Dr. Rajesh Kumar\",\n  \"email\": \"board@semi.com\",\n  \"password\": \"BoardPass@123\",\n  \"role\": \"board\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/users/create-admin",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "create-admin"
+              ]
+            },
+            "description": "role: admin | board"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "🏛 Institutes",
+      "item": [
+        {
+          "name": "GET My Application",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/institutes/my-application",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "institutes",
+                "my-application"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "POST Apply Institute",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "var j=pm.response.json(); if(j.data&&j.data._id) pm.collectionVariables.set('instituteId',j.data._id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "orgName",
+                  "value": "City General Hospital",
+                  "type": "text"
+                },
+                {
+                  "key": "constitutionType",
+                  "value": "Trust",
+                  "type": "text",
+                  "description": "University | State Government | Society | Trust"
+                },
+                {
+                  "key": "instituteAddress",
+                  "value": "123 MG Road, Mumbai",
+                  "type": "text"
+                },
+                {
+                  "key": "registeredOfficeAddress",
+                  "value": "123 MG Road, Mumbai 400001",
+                  "type": "text"
+                },
+                {
+                  "key": "phoneNumber",
+                  "value": "9876543210",
+                  "type": "text"
+                },
+                {
+                  "key": "emailAddress",
+                  "value": "info@city.com",
+                  "type": "text"
+                },
+                {
+                  "key": "commencementDate",
+                  "value": "2027-01-01",
+                  "type": "text",
+                  "description": "Future date"
+                },
+                {
+                  "key": "seatsRequested",
+                  "value": "10",
+                  "type": "text"
+                },
+                {
+                  "key": "officePhone",
+                  "value": "02212345678",
+                  "type": "text"
+                },
+                {
+                  "key": "website",
+                  "value": "https://cityhospital.com",
+                  "type": "text"
+                },
+                {
+                  "key": "headName",
+                  "value": "Dr. Anita Sharma",
+                  "type": "text"
+                },
+                {
+                  "key": "headDesignation",
+                  "value": "CMO",
+                  "type": "text"
+                },
+                {
+                  "key": "hodName",
+                  "value": "Dr. Ramesh Patel",
+                  "type": "text"
+                },
+                {
+                  "key": "bedCount",
+                  "value": "150",
+                  "type": "text",
+                  "description": "Min 10"
+                },
+                {
+                  "key": "physicianAvailability",
+                  "value": "Yes",
+                  "type": "text",
+                  "description": "Yes | No"
+                },
+                {
+                  "key": "physicianExperience",
+                  "value": "36",
+                  "type": "text",
+                  "description": "Min 24 months"
+                },
+                {
+                  "key": "courseDirectorEMQualified",
+                  "value": "Yes",
+                  "type": "text",
+                  "description": "Yes | No"
+                },
+                {
+                  "key": "emFacultyCount",
+                  "value": "5",
+                  "type": "text"
+                },
+                {
+                  "key": "teachingSpace",
+                  "value": "Yes",
+                  "type": "text",
+                  "description": "Yes | No"
+                },
+                {
+                  "key": "nabhStatus",
+                  "value": "Yes",
+                  "type": "text",
+                  "description": "Yes | No"
+                },
+                {
+                  "key": "paymentBankName",
+                  "value": "State Bank of India",
+                  "type": "text"
+                },
+                {
+                  "key": "paymentTxnNo",
+                  "value": "UTR123456789",
+                  "type": "text"
+                },
+                {
+                  "key": "paymentTxnDate",
+                  "value": "2026-06-01",
+                  "type": "text"
+                },
+                {
+                  "key": "authorizedRepName",
+                  "value": "Dr. Anita Sharma",
+                  "type": "text"
+                },
+                {
+                  "key": "authorizedRepDesignation",
+                  "value": "CMO",
+                  "type": "text"
+                },
+                {
+                  "key": "applicationDate",
+                  "value": "2026-06-17",
+                  "type": "text"
+                },
+                {
+                  "key": "cityAndState",
+                  "value": "Mumbai, Maharashtra",
+                  "type": "text"
+                },
+                {
+                  "key": "pincode",
+                  "value": "400001",
+                  "type": "text"
+                },
+                {
+                  "key": "contactNumbers",
+                  "value": "9876543210",
+                  "type": "text"
+                },
+                {
+                  "key": "emailId",
+                  "value": "info@city.com",
+                  "type": "text"
+                },
+                {
+                  "key": "facultyCommitmentLetter",
+                  "src": [],
+                  "type": "file",
+                  "description": "MANDATORY"
+                },
+                {
+                  "key": "equipmentList",
+                  "src": [],
+                  "type": "file",
+                  "description": "MANDATORY"
+                },
+                {
+                  "key": "facultyList",
+                  "src": [],
+                  "type": "file",
+                  "description": "MANDATORY"
+                },
+                {
+                  "key": "emergencyOPDStatistics",
+                  "src": [],
+                  "type": "file",
+                  "description": "MANDATORY"
+                },
+                {
+                  "key": "libraryBookList",
+                  "src": [],
+                  "type": "file",
+                  "description": "MANDATORY"
+                },
+                {
+                  "key": "trainingMannequinList",
+                  "src": [],
+                  "type": "file",
+                  "description": "MANDATORY"
+                },
+                {
+                  "key": "diagnosticEquipmentList",
+                  "src": [],
+                  "type": "file",
+                  "description": "MANDATORY"
+                },
+                {
+                  "key": "declarationLetter",
+                  "src": [],
+                  "type": "file",
+                  "description": "MANDATORY"
+                },
+                {
+                  "key": "inspectionPaymentReceipt",
+                  "src": [],
+                  "type": "file",
+                  "description": "Optional"
+                },
+                {
+                  "key": "applicantSignature",
+                  "src": [],
+                  "type": "file",
+                  "description": "Optional"
+                },
+                {
+                  "key": "hodSignatureAndSeal",
+                  "src": [],
+                  "type": "file",
+                  "description": "Optional"
+                },
+                {
+                  "key": "headOfInstitutionSignatureAndSeal",
+                  "src": [],
+                  "type": "file",
+                  "description": "Optional"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/api/institutes/apply",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "institutes",
+                "apply"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "POST Create Razorpay Order",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "var j=pm.response.json(); if(j.data&&j.data.orderId) pm.collectionVariables.set('razorpayOrderId',j.data.orderId);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/institutes/payment/create-order",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "institutes",
+                "payment",
+                "create-order"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "POST Verify Razorpay Payment",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"razorpay_payment_id\": \"pay_MockId123\",\n  \"razorpay_order_id\": \"{{razorpayOrderId}}\",\n  \"razorpay_signature\": \"mock_sig\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/institutes/payment/verify",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "institutes",
+                "payment",
+                "verify"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "POST Verify Payment (Legacy)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"paymentId\": \"pay_Legacy456\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/institutes/payment",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "institutes",
+                "payment"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "GET List All Applications (Board/Admin)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{superAdminToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/institutes/applications",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "institutes",
+                "applications"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "POST Review Application (Approve/Reject)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{superAdminToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"Approved\",\n  \"remarks\": \"All documents verified.\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/institutes/{{instituteId}}/review",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "institutes",
+                "{{instituteId}}",
+                "review"
+              ]
+            },
+            "description": "status: Approved | Rejected. Prereq: paymentStatus=Completed."
+          },
+          "response": []
+        },
+        {
+          "name": "PATCH Toggle Inspection Status",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{superAdminToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"inspectionTriggered\": true\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/institutes/{{instituteId}}/inspection",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "institutes",
+                "{{instituteId}}",
+                "inspection"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "📚 Academic",
+      "item": [
+        {
+          "name": "Courses",
+          "item": [
+            {
+              "name": "GET All Courses",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/academic/courses",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "academic",
+                    "courses"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "GET Course by ID",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/academic/courses/{{courseId}}",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "academic",
+                    "courses",
+                    "{{courseId}}"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "POST Create Course",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "var j=pm.response.json(); if(j.data&&j.data._id) pm.collectionVariables.set('courseId',j.data._id);"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"Emergency Medicine\",\n  \"description\": \"Fellowship in EM (FEM)\"\n}"
+                },
+                "url": {
+                  "raw": "{{base_url}}/api/academic/courses",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "academic",
+                    "courses"
+                  ]
+                },
+                "description": "Access: institute only. Prereq: Institute Approved."
+              },
+              "response": []
+            },
+            {
+              "name": "PUT Update Course",
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"Emergency Medicine (Updated)\"\n}"
+                },
+                "url": {
+                  "raw": "{{base_url}}/api/academic/courses/{{courseId}}",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "academic",
+                    "courses",
+                    "{{courseId}}"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "DELETE Course",
+              "request": {
+                "method": "DELETE",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/academic/courses/{{courseId}}",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "academic",
+                    "courses",
+                    "{{courseId}}"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Batches",
+          "item": [
+            {
+              "name": "GET All Batches",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/academic/batches",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "academic",
+                    "batches"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "GET Batch by ID",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/academic/batches/{{batchId}}",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "academic",
+                    "batches",
+                    "{{batchId}}"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "GET Batches by Course",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/academic/batches/course/{{courseId}}",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "academic",
+                    "batches",
+                    "course",
+                    "{{courseId}}"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "POST Create Batch",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "var j=pm.response.json(); if(j.data&&j.data._id) pm.collectionVariables.set('batchId',j.data._id);"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"courseId\": \"{{courseId}}\",\n  \"year\": 2026\n}"
+                },
+                "url": {
+                  "raw": "{{base_url}}/api/academic/batches",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "academic",
+                    "batches"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "PUT Update Batch",
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"year\": 2027\n}"
+                },
+                "url": {
+                  "raw": "{{base_url}}/api/academic/batches/{{batchId}}",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "academic",
+                    "batches",
+                    "{{batchId}}"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "DELETE Batch",
+              "request": {
+                "method": "DELETE",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/academic/batches/{{batchId}}",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "academic",
+                    "batches",
+                    "{{batchId}}"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Students",
+          "item": [
+            {
+              "name": "GET All Students (with filters)",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/academic/students?courseId=&batchId=&search=&isEligible=",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "academic",
+                    "students"
+                  ],
+                  "query": [
+                    {
+                      "key": "courseId",
+                      "value": ""
+                    },
+                    {
+                      "key": "batchId",
+                      "value": ""
+                    },
+                    {
+                      "key": "search",
+                      "value": ""
+                    },
+                    {
+                      "key": "isEligible",
+                      "value": "",
+                      "description": "true | false | empty=all"
+                    }
+                  ]
+                },
+                "description": "isEligible: remittedToAcademy=true AND attendance>=75% AND thesisApproved=true"
+              },
+              "response": []
+            },
+            {
+              "name": "GET Student by ID",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/academic/students/{{studentId}}",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "academic",
+                    "students",
+                    "{{studentId}}"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "POST Add Student (Enrollment with Fee)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "var j=pm.response.json(); if(j.data&&j.data._id){ pm.collectionVariables.set(\"studentId\",j.data._id); console.log(\"enrollmentId:\",j.data.enrollmentId); }"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  }
+                ],
+                "body": {
+                  "mode": "formdata",
+                  "formdata": [
+                    {
+                      "key": "firstName",
+                      "value": "Priya",
+                      "type": "text"
+                    },
+                    {
+                      "key": "lastName",
+                      "value": "Nair",
+                      "type": "text"
+                    },
+                    {
+                      "key": "homeAddress",
+                      "value": "45 Nair Street, Kochi 682001",
+                      "type": "text"
+                    },
+                    {
+                      "key": "contactNumber",
+                      "value": "9876543210",
+                      "type": "text",
+                      "description": "10-15 digits"
+                    },
+                    {
+                      "key": "email",
+                      "value": "priya@example.com",
+                      "type": "text"
+                    },
+                    {
+                      "key": "qualification",
+                      "value": "MBBS, MD",
+                      "type": "text"
+                    },
+                    {
+                      "key": "mbbsQualification",
+                      "value": "MBBS from Kerala University",
+                      "type": "text"
+                    },
+                    {
+                      "key": "yearOfPassing",
+                      "value": "2020",
+                      "type": "text"
+                    },
+                    {
+                      "key": "universityName",
+                      "value": "Kerala University of Health Sciences",
+                      "type": "text"
+                    },
+                    {
+                      "key": "medicalCouncilRegistrationNumber",
+                      "value": "KL-12345-2020",
+                      "type": "text"
+                    },
+                    {
+                      "key": "isForeignGraduate",
+                      "value": "false",
+                      "type": "text",
+                      "description": "true | false"
+                    },
+                    {
+                      "key": "fmgeClearanceStatus",
+                      "value": "Not Applicable",
+                      "type": "text",
+                      "description": "Cleared | Not Applicable | Failed"
+                    },
+                    {
+                      "key": "courseId",
+                      "value": "{{courseId}}",
+                      "type": "text"
+                    },
+                    {
+                      "key": "batchId",
+                      "value": "{{batchId}}",
+                      "type": "text"
+                    },
+                    {
+                      "key": "courseDirector",
+                      "value": "Dr. Anita Sharma",
+                      "type": "text"
+                    },
+                    {
+                      "key": "utrNumber",
+                      "value": "UTR20260617001",
+                      "type": "text",
+                      "description": "MANDATORY - Enrollment fee UTR"
+                    },
+                    {
+                      "key": "passportPhoto",
+                      "src": [],
+                      "type": "file",
+                      "description": "MANDATORY"
+                    },
+                    {
+                      "key": "mbbsCertificate",
+                      "src": [],
+                      "type": "file",
+                      "description": "MANDATORY"
+                    },
+                    {
+                      "key": "medicalCouncilRegistrationCertificate",
+                      "src": [],
+                      "type": "file",
+                      "description": "MANDATORY"
+                    },
+                    {
+                      "key": "paymentReceipt",
+                      "src": [],
+                      "type": "file",
+                      "description": "MANDATORY - Enrollment fee receipt"
+                    },
+                    {
+                      "key": "semiMembershipForm",
+                      "src": [],
+                      "type": "file",
+                      "description": "MANDATORY"
+                    },
+                    {
+                      "key": "fmgeResultCopy",
+                      "src": [],
+                      "type": "file",
+                      "description": "Required only if isForeignGraduate=true AND fmgeClearanceStatus=Cleared"
+                    }
+                  ]
+                },
+                "url": {
+                  "raw": "{{base_url}}/api/academic/students",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "academic",
+                    "students"
+                  ]
+                },
+                "description": "Enrolls student. utrNumber + paymentReceipt are MANDATORY."
+              },
+              "response": []
+            },
+            {
+              "name": "PUT Update Student",
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  }
+                ],
+                "body": {
+                  "mode": "formdata",
+                  "formdata": [
+                    {
+                      "key": "firstName",
+                      "value": "Priya Updated",
+                      "type": "text"
+                    },
+                    {
+                      "key": "contactNumber",
+                      "value": "9999999999",
+                      "type": "text"
+                    },
+                    {
+                      "key": "passportPhoto",
+                      "src": [],
+                      "type": "file",
+                      "description": "Optional - only if replacing"
+                    }
+                  ]
+                },
+                "url": {
+                  "raw": "{{base_url}}/api/academic/students/{{studentId}}",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "academic",
+                    "students",
+                    "{{studentId}}"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "DELETE Student",
+              "request": {
+                "method": "DELETE",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/academic/students/{{studentId}}",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "academic",
+                    "students",
+                    "{{studentId}}"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "PATCH Update Academic Metrics",
+              "request": {
+                "method": "PATCH",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  }
+                ],
+                "body": {
+                  "mode": "formdata",
+                  "formdata": [
+                    {
+                      "key": "attendancePercentage",
+                      "value": "85",
+                      "type": "text",
+                      "description": "Number 0-100"
+                    },
+                    {
+                      "key": "thesisApproved",
+                      "value": "true",
+                      "type": "text",
+                      "description": "true | false"
+                    },
+                    {
+                      "key": "thesisDocument",
+                      "src": [],
+                      "type": "file",
+                      "description": "Optional - PDF/DOCX. Saved as thesisDocumentUrl."
+                    }
+                  ]
+                },
+                "url": {
+                  "raw": "{{base_url}}/api/academic/students/{{studentId}}/academic-metrics",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "academic",
+                    "students",
+                    "{{studentId}}",
+                    "academic-metrics"
+                  ]
+                },
+                "description": "Access: institute, admin, board, super_admin"
+              },
+              "response": []
+            },
+            {
+              "name": "GET Evaluate Student Eligibility",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/academic/students/{{studentId}}/eligibility",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "academic",
+                    "students",
+                    "{{studentId}}",
+                    "eligibility"
+                  ]
+                },
+                "description": "Returns: feeStatus, attendance>=75%, thesisApproved, isEligible, decision."
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Fee Records",
+          "item": [
+            {
+              "name": "GET All Fee Records (Institute-wide)",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/academic/fees",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "academic",
+                    "fees"
+                  ]
+                },
+                "description": "Institute sees own. Admin/board/super_admin see all."
+              },
+              "response": []
+            },
+            {
+              "name": "GET Fee Records for a Student",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/academic/students/{{studentId}}/fees",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "academic",
+                    "students",
+                    "{{studentId}}",
+                    "fees"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "POST Record Student Fee",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  }
+                ],
+                "body": {
+                  "mode": "formdata",
+                  "formdata": [
+                    {
+                      "key": "amount",
+                      "value": "25000",
+                      "type": "text"
+                    },
+                    {
+                      "key": "paymentMode",
+                      "value": "UPI",
+                      "type": "text",
+                      "description": "UPI | NEFT | RTGS | Cash"
+                    },
+                    {
+                      "key": "utrNumber",
+                      "value": "UTR20260617002",
+                      "type": "text"
+                    },
+                    {
+                      "key": "paymentDate",
+                      "value": "2026-06-17",
+                      "type": "text"
+                    },
+                    {
+                      "key": "paymentPurpose",
+                      "value": "Examination Fee",
+                      "type": "text",
+                      "description": "e.g. Examination Fee | Course Fee - Semester 1"
+                    },
+                    {
+                      "key": "paymentReceipt",
+                      "src": [],
+                      "type": "file",
+                      "description": "MANDATORY"
+                    }
+                  ]
+                },
+                "url": {
+                  "raw": "{{base_url}}/api/academic/students/{{studentId}}/fees",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "academic",
+                    "students",
+                    "{{studentId}}",
+                    "fees"
+                  ]
+                },
+                "description": "Access: institute only"
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Remittances",
+          "item": [
+            {
+              "name": "GET Payable Remittance Amount",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/academic/remittance/payable",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "academic",
+                    "remittance",
+                    "payable"
+                  ]
+                },
+                "description": "INR 50,000/pending student. Access: institute only."
+              },
+              "response": []
+            },
+            {
+              "name": "GET All Remittances",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/academic/remittance",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "academic",
+                    "remittance"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "POST Record Academy Remittance",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  }
+                ],
+                "body": {
+                  "mode": "formdata",
+                  "formdata": [
+                    {
+                      "key": "totalAmount",
+                      "value": "150000",
+                      "type": "text"
+                    },
+                    {
+                      "key": "utrNumber",
+                      "value": "UTR20260617003",
+                      "type": "text"
+                    },
+                    {
+                      "key": "paymentDate",
+                      "value": "2026-06-17",
+                      "type": "text"
+                    },
+                    {
+                      "key": "studentIds",
+                      "value": "[\"{{studentId}}\"]",
+                      "type": "text",
+                      "description": "Optional JSON array. Omit = all pending students."
+                    },
+                    {
+                      "key": "paymentReceipt",
+                      "src": [],
+                      "type": "file",
+                      "description": "MANDATORY"
+                    }
+                  ]
+                },
+                "url": {
+                  "raw": "{{base_url}}/api/academic/remittance",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "academic",
+                    "remittance"
+                  ]
+                },
+                "description": "Sets remittedToAcademy=true on covered students."
+              },
+              "response": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "📝 Exam Applications",
+      "description": "Full lifecycle:\n1. Institute: POST /apply (Pending)\n2. Board: PUT /:id/review — Approve/Reject\n3. Board: PUT /:id/publish-schedule — venue, center, time (SchedulePublished)\n4. Institute: POST /:id/generate-hall-tickets\n5. Institute: GET /:id/hall-tickets\n6. Institute: GET /:id/hall-tickets/:hid/download\n\nFilters on GET /: ?status=Pending&courseId=&batchId=",
+      "item": [
+        {
+          "name": "GET All Exam Applications",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/exam?status=&courseId=&batchId=",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "exam"
+              ],
+              "query": [
+                {
+                  "key": "status",
+                  "value": "",
+                  "description": "Pending | Approved | SchedulePublished | Rejected | empty=all"
+                },
+                {
+                  "key": "courseId",
+                  "value": ""
+                },
+                {
+                  "key": "batchId",
+                  "value": ""
+                }
+              ]
+            },
+            "description": "Institute sees own only. Board/Admin/SuperAdmin see all.\nFilters: status, courseId, batchId"
+          },
+          "response": []
+        },
+        {
+          "name": "GET Exam Application by ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/exam/{{examApplicationId}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "exam",
+                "{{examApplicationId}}"
+              ]
+            },
+            "description": "Full details including subjects, schedule info, and populated students.\nInstitute can only access own applications."
+          },
+          "response": []
+        },
+        {
+          "name": "POST Apply for Exam (with Fee + Subjects)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "var j=pm.response.json(); if(j.data&&j.data._id){ pm.collectionVariables.set(\"examApplicationId\",j.data._id); console.log(\"examApplicationId:\",j.data._id); }"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "courseId",
+                  "value": "{{courseId}}",
+                  "type": "text",
+                  "description": "MANDATORY"
+                },
+                {
+                  "key": "batchId",
+                  "value": "{{batchId}}",
+                  "type": "text",
+                  "description": "MANDATORY"
+                },
+                {
+                  "key": "studentIds",
+                  "value": "[\"{{studentId}}\"]",
+                  "type": "text",
+                  "description": "MANDATORY — JSON array of eligible student IDs"
+                },
+                {
+                  "key": "subjects",
+                  "value": "[\"Anatomy\",\"Physiology\",\"Emergency Medicine\"]",
+                  "type": "text",
+                  "description": "MANDATORY — JSON array. Min 1."
+                },
+                {
+                  "key": "utrNumber",
+                  "value": "UTR-EXAM-2026001",
+                  "type": "text",
+                  "description": "MANDATORY — Exam fee UTR"
+                },
+                {
+                  "key": "examFeeReceipt",
+                  "src": [],
+                  "type": "file",
+                  "description": "MANDATORY — Exam fee receipt PDF/image"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/api/exam/apply",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "exam",
+                "apply"
+              ]
+            },
+            "description": "Status → Pending\n\nPer-student eligibility: remittedToAcademy=true AND attendance>=75% AND thesisApproved=true\n\nAccess: institute only"
+          },
+          "response": [
+            {
+              "name": "201 Application Submitted",
+              "status": "Created",
+              "code": 201,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"success\": true,\n  \"message\": \"Exam application submitted successfully\",\n  \"data\": { \"_id\": \"64f1...\", \"status\": \"Pending\", \"subjects\": [\"Anatomy\",\"Physiology\",\"Emergency Medicine\"], \"utrNumber\": \"UTR-EXAM-2026001\" }\n}"
+            },
+            {
+              "name": "400 Missing subjects",
+              "status": "Bad Request",
+              "code": 400,
+              "_postman_previewlanguage": "json",
+              "body": "{\"success\":false,\"message\":\"At least one subject is required\"}"
+            },
+            {
+              "name": "400 Missing fee receipt",
+              "status": "Bad Request",
+              "code": 400,
+              "_postman_previewlanguage": "json",
+              "body": "{\"success\":false,\"message\":\"Exam Fee Receipt upload is mandatory.\"}"
+            },
+            {
+              "name": "400 Ineligible students",
+              "status": "Bad Request",
+              "code": 400,
+              "_postman_previewlanguage": "json",
+              "body": "{\"success\":false,\"message\":\"Cannot apply for exam. One or more selected students are ineligible.\"}"
+            }
+          ]
+        },
+        {
+          "name": "PUT Update Exam Application (Pending only)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"subjects\": [\n    \"Anatomy\",\n    \"Physiology\",\n    \"Emergency Medicine\",\n    \"Pharmacology\"\n  ],\n  \"studentIds\": [\n    \"{{studentId}}\"\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/exam/{{examApplicationId}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "exam",
+                "{{examApplicationId}}"
+              ]
+            },
+            "description": "Updatable: subjects (array), studentIds (array — all must be eligible)\nRestriction: Only Pending applications.\nAccess: institute only"
+          },
+          "response": [
+            {
+              "name": "200 Updated",
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"success\": true,\n  \"message\": \"Exam application updated successfully\",\n  \"data\": { \"subjects\": [\"Anatomy\",\"Physiology\",\"Emergency Medicine\",\"Pharmacology\"], \"status\": \"Pending\" }\n}"
+            },
+            {
+              "name": "400 Not Pending",
+              "status": "Bad Request",
+              "code": 400,
+              "_postman_previewlanguage": "json",
+              "body": "{\"success\":false,\"message\":\"Only Pending applications can be updated.\"}"
+            }
+          ]
+        },
+        {
+          "name": "DELETE Exam Application (Pending only)",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/exam/{{examApplicationId}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "exam",
+                "{{examApplicationId}}"
+              ]
+            },
+            "description": "Cancels and deletes a Pending application.\nAccess: institute only"
+          },
+          "response": [
+            {
+              "name": "200 Deleted",
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"success\": true,\n  \"message\": \"Exam application cancelled and deleted successfully\",\n  \"data\": { \"deletedId\": \"64f1...\" }\n}"
+            },
+            {
+              "name": "400 Not Pending",
+              "status": "Bad Request",
+              "code": 400,
+              "_postman_previewlanguage": "json",
+              "body": "{\"success\":false,\"message\":\"Only Pending applications can be cancelled/deleted.\"}"
+            }
+          ]
+        },
+        {
+          "name": "🔵 [Board] Step 1 — Review (Approve / Reject)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{superAdminToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"Approved\",\n  \"scheduledDate\": \"2026-09-15\",\n  \"remarks\": \"All eligibility criteria verified.\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/exam/{{examApplicationId}}/review",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "exam",
+                "{{examApplicationId}}",
+                "review"
+              ]
+            },
+            "description": "UC 4.2 Step 1 — Board reviews the exam application.\n\nFields:\n- status: \"Approved\" | \"Rejected\"\n- scheduledDate: required when Approving (ISO date)\n- remarks: optional notes\n\nStatus transitions:\n- Pending → Approved\n- Pending → Rejected\n\nAccess: board, admin, super_admin"
+          },
+          "response": [
+            {
+              "name": "200 Approved",
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"success\": true,\n  \"message\": \"Exam application approved successfully\",\n  \"data\": { \"status\": \"Approved\", \"scheduledDate\": \"2026-09-15T00:00:00.000Z\" }\n}"
+            },
+            {
+              "name": "200 Rejected",
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"success\": true,\n  \"message\": \"Exam application rejected successfully\",\n  \"data\": { \"status\": \"Rejected\", \"remarks\": \"Insufficient attendance records.\" }\n}"
+            },
+            {
+              "name": "400 Missing scheduledDate",
+              "status": "Bad Request",
+              "code": 400,
+              "_postman_previewlanguage": "json",
+              "body": "{\"success\":false,\"message\":\"A scheduled date is required to approve the exam application.\"}"
+            },
+            {
+              "name": "400 Not Pending",
+              "status": "Bad Request",
+              "code": 400,
+              "_postman_previewlanguage": "json",
+              "body": "{\"success\":false,\"message\":\"Cannot review an application with status \\\"Approved\\\". Only Pending applications can be reviewed.\"}"
+            }
+          ]
+        },
+        {
+          "name": "🟢 [Board] Step 2 — Publish Exam Schedule",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{superAdminToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"examVenue\": \"Examination Hall A, Mumbai Convention Centre\",\n  \"examCenter\": \"Mumbai Central Examination Hub\",\n  \"reportingTime\": \"08:30 AM\",\n  \"scheduledDate\": \"2026-09-15\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/exam/{{examApplicationId}}/publish-schedule",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "exam",
+                "{{examApplicationId}}",
+                "publish-schedule"
+              ]
+            },
+            "description": "UC 4.2 Step 2 — Board publishes the full exam schedule.\n\nPREREQUISITE: Application must be Approved (Step 1 done first).\n\nFields:\n- examVenue: MANDATORY — full venue name/address\n- examCenter: MANDATORY — exam center code/name\n- reportingTime: MANDATORY — e.g. \"08:30 AM\"\n- scheduledDate: optional override of date set in Step 1\n\nStatus transitions:\n  Approved → SchedulePublished\n\nAfter this, the institute can generate hall tickets.\n\nAccess: board, admin, super_admin"
+          },
+          "response": [
+            {
+              "name": "200 Schedule Published",
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"success\": true,\n  \"message\": \"Exam schedule published successfully. Institute can now generate hall tickets.\",\n  \"data\": {\n    \"_id\": \"64f1...\",\n    \"status\": \"SchedulePublished\",\n    \"scheduledDate\": \"2026-09-15T00:00:00.000Z\",\n    \"examVenue\": \"Examination Hall A, Mumbai Convention Centre\",\n    \"examCenter\": \"Mumbai Central Examination Hub\",\n    \"reportingTime\": \"08:30 AM\",\n    \"schedulePublishedAt\": \"2026-06-26T12:30:00.000Z\",\n    \"subjects\": [\"Anatomy\",\"Physiology\",\"Emergency Medicine\"]\n  }\n}"
+            },
+            {
+              "name": "400 Not Approved",
+              "status": "Bad Request",
+              "code": 400,
+              "_postman_previewlanguage": "json",
+              "body": "{\"success\":false,\"message\":\"Cannot publish schedule for an application with status \\\"Pending\\\". Application must be Approved first.\"}"
+            },
+            {
+              "name": "400 Missing examVenue",
+              "status": "Bad Request",
+              "code": 400,
+              "_postman_previewlanguage": "json",
+              "body": "{\"success\":false,\"message\":\"Exam venue is required\"}"
+            },
+            {
+              "name": "400 Missing examCenter",
+              "status": "Bad Request",
+              "code": 400,
+              "_postman_previewlanguage": "json",
+              "body": "{\"success\":false,\"message\":\"Exam center is required\"}"
+            },
+            {
+              "name": "400 Missing reportingTime",
+              "status": "Bad Request",
+              "code": 400,
+              "_postman_previewlanguage": "json",
+              "body": "{\"success\":false,\"message\":\"Reporting time is required\"}"
+            }
+          ]
+        },
+        {
+          "name": "🎫 [Step 3] Generate Hall Tickets",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/exam/{{examApplicationId}}/generate-hall-tickets",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "exam",
+                "{{examApplicationId}}",
+                "generate-hall-tickets"
+              ]
+            },
+            "description": "UC 4.3 — Generates and PERSISTS hall tickets in MongoDB.\n\nPREREQUISITE: status = SchedulePublished (Steps 1 + 2 done).\n\nIdempotent: re-running regenerates tickets (old ones deleted first).\n\nEach ticket contains:\n- ticketId (unique: HT-{enrollmentId}-{timestamp})\n- studentName, enrollmentId, contactNumber, photoUrl\n- instituteName, instituteAddress\n- courseName, batchYear\n- subjects (array)\n- examDate, examVenue, examCenter, reportingTime\n\nAfter this, use GET /:id/hall-tickets to list them.\n\nAccess: institute (own), board, admin, super_admin"
+          },
+          "response": [
+            {
+              "name": "200 Hall Tickets Generated",
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"success\": true,\n  \"message\": \"3 hall ticket(s) generated successfully. Use GET /:id/hall-tickets to retrieve them.\",\n  \"data\": {\n    \"count\": 3,\n    \"hallTicketsGeneratedAt\": \"2026-06-26T12:35:00.000Z\",\n    \"tickets\": [\n      {\n        \"_id\": \"64f2...\",\n        \"ticketId\": \"HT-SEMI-2025-4231-1719400000000\",\n        \"enrollmentId\": \"SEMI-2025-4231\",\n        \"studentName\": \"Priya Nair\",\n        \"examVenue\": \"Examination Hall A, Mumbai\",\n        \"examCenter\": \"Mumbai Central Examination Hub\",\n        \"reportingTime\": \"08:30 AM\",\n        \"examDate\": \"2026-09-15T00:00:00.000Z\",\n        \"subjects\": [\"Anatomy\",\"Physiology\",\"Emergency Medicine\"],\n        \"isDownloaded\": false\n      }\n    ]\n  }\n}"
+            },
+            {
+              "name": "400 Not SchedulePublished",
+              "status": "Bad Request",
+              "code": 400,
+              "_postman_previewlanguage": "json",
+              "body": "{\"success\":false,\"message\":\"Hall tickets can only be generated after the schedule is published. Current status: \\\"Approved\\\".\"}"
+            }
+          ]
+        },
+        {
+          "name": "🎫 [Step 4] List All Hall Tickets",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "var j=pm.response.json(); if(j.data&&j.data[0]&&j.data[0]._id) pm.collectionVariables.set(\"hallTicketId\",j.data[0]._id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/exam/{{examApplicationId}}/hall-tickets",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "exam",
+                "{{examApplicationId}}",
+                "hall-tickets"
+              ]
+            },
+            "description": "UC 4.3 — Returns all persisted hall tickets for this exam application.\n\nAuto-saves first ticket _id into {{hallTicketId}} variable.\n\nAccess: institute (own), board, admin, super_admin"
+          },
+          "response": [
+            {
+              "name": "200 Hall Tickets List",
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"success\": true,\n  \"message\": \"3 hall ticket(s) retrieved successfully\",\n  \"data\": [\n    { \"_id\": \"64f2...\", \"ticketId\": \"HT-SEMI-2025-4231-...\", \"studentName\": \"Priya Nair\", \"isDownloaded\": false },\n    { \"_id\": \"64f3...\", \"ticketId\": \"HT-SEMI-2025-4232-...\", \"studentName\": \"Rahul Sharma\", \"isDownloaded\": true }\n  ]\n}"
+            },
+            {
+              "name": "400 Not Generated Yet",
+              "status": "Bad Request",
+              "code": 400,
+              "_postman_previewlanguage": "json",
+              "body": "{\"success\":false,\"message\":\"Hall tickets have not been generated yet for this application.\"}"
+            }
+          ]
+        },
+        {
+          "name": "🎫 [Step 5] Get Hall Ticket by ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/exam/{{examApplicationId}}/hall-tickets/{{hallTicketId}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "exam",
+                "{{examApplicationId}}",
+                "hall-tickets",
+                "{{hallTicketId}}"
+              ]
+            },
+            "description": "UC 4.3 — Returns a single hall ticket with full details.\n\nAccess: institute (own), board, admin, super_admin"
+          },
+          "response": [
+            {
+              "name": "200 Hall Ticket",
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"success\": true,\n  \"message\": \"Hall ticket retrieved successfully\",\n  \"data\": {\n    \"_id\": \"64f2...\",\n    \"ticketId\": \"HT-SEMI-2025-4231-1719400000000\",\n    \"enrollmentId\": \"SEMI-2025-4231\",\n    \"studentName\": \"Priya Nair\",\n    \"contactNumber\": \"9876543210\",\n    \"instituteName\": \"City General Hospital\",\n    \"courseName\": \"Emergency Medicine\",\n    \"batchYear\": 2025,\n    \"subjects\": [\"Anatomy\",\"Physiology\",\"Emergency Medicine\"],\n    \"examDate\": \"2026-09-15T00:00:00.000Z\",\n    \"examVenue\": \"Examination Hall A, Mumbai\",\n    \"examCenter\": \"Mumbai Central Examination Hub\",\n    \"reportingTime\": \"08:30 AM\",\n    \"isDownloaded\": false\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "⬇️ [Step 6] Download Hall Ticket (marks isDownloaded=true)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/exam/{{examApplicationId}}/hall-tickets/{{hallTicketId}}/download",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "exam",
+                "{{examApplicationId}}",
+                "hall-tickets",
+                "{{hallTicketId}}",
+                "download"
+              ]
+            },
+            "description": "UC 4.3 — Returns full hall ticket data and marks isDownloaded=true + sets downloadedAt timestamp.\n\nIdempotent: re-calling does not reset isDownloaded.\n\nFrontend uses this data to render a printable PDF hall ticket.\n\nAccess: institute (own), board, admin, super_admin"
+          },
+          "response": [
+            {
+              "name": "200 Downloaded",
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"success\": true,\n  \"message\": \"Hall ticket data ready for download. Use this data to render a printable PDF.\",\n  \"data\": {\n    \"ticketId\": \"HT-SEMI-2025-4231-1719400000000\",\n    \"enrollmentId\": \"SEMI-2025-4231\",\n    \"studentName\": \"Priya Nair\",\n    \"contactNumber\": \"9876543210\",\n    \"photoUrl\": \"https://res.cloudinary.com/.../photo.jpg\",\n    \"instituteName\": \"City General Hospital\",\n    \"instituteAddress\": \"123 MG Road, Mumbai\",\n    \"courseName\": \"Emergency Medicine\",\n    \"batchYear\": 2025,\n    \"subjects\": [\"Anatomy\",\"Physiology\",\"Emergency Medicine\"],\n    \"examDate\": \"2026-09-15T00:00:00.000Z\",\n    \"examVenue\": \"Examination Hall A, Mumbai Convention Centre\",\n    \"examCenter\": \"Mumbai Central Examination Hub\",\n    \"reportingTime\": \"08:30 AM\",\n    \"isDownloaded\": true,\n    \"downloadedAt\": \"2026-06-26T13:00:00.000Z\"\n  }\n}"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
