@@ -15,7 +15,8 @@ const getFileUrl = (filePath: string) => {
     return filePath;
   }
   const filename = path.basename(filePath);
-  return `http://localhost:5000/uploads/${filename}`;
+  const baseUrl = (process.env.BASE_URL || 'http://localhost:5000').replace(/\/$/, '');
+  return `${baseUrl}/uploads/${filename}`;
 };
 
 // ==========================================
