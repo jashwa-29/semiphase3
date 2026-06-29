@@ -22,7 +22,7 @@ const instituteSchema = z.object({
   constitutionType: z.enum(['University', 'State Government', 'Autonomous Body', 'Union Territory', 'Society', 'Trust', 'Society / Trust']),
   instituteAddress: z.string().min(1, 'Institute Address is required'),
   registeredOfficeAddress: z.string().min(1, 'Registered Office Address is required'),
-  phoneNumber: z.string().regex(/^[0-9]{10,15}$/, 'Must be a valid mobile number format'),
+  phoneNumber: z.string().regex(/^[0-9]{6,15}$/, 'Must be a valid phone or landline number format'),
   emailAddress: z.string().email('Invalid email format'),
   commencementDate: z.string().refine((date) => new Date(date) > new Date(), { message: 'Must be a valid future date' }).transform(val => new Date(val)),
   seatsRequested: z.coerce.number().min(1, 'Numeric value only'),
