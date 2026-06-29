@@ -10,6 +10,9 @@ export const notFound = (req: Request, res: Response, next: NextFunction) => {
 export const errorHandler = (err: any, req: Request, res: Response, next: NextFunction) => {
   const statusCode = res.statusCode === 200 ? 500 : res.statusCode;
   
+  // Log full stack trace for unhandled errors
+  console.error(`🔥 Unhandled Error at [${req.method} ${req.originalUrl}]:`, err);
+  
   const errors = err.errors || [];
   
   if (err.name === 'ZodError') {
