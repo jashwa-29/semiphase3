@@ -24,7 +24,7 @@ const instituteSchema = z.object({
   registeredOfficeAddress: z.string().min(1, 'Registered Office Address is required'),
   phoneNumber: z.string().regex(/^[0-9]{6,15}$/, 'Must be a valid phone or landline number format'),
   emailAddress: z.string().email('Invalid email format'),
-  commencementDate: z.string().refine((date) => new Date(date) > new Date(), { message: 'Must be a valid future date' }).transform(val => new Date(val)),
+  commencementDate: z.string().transform(val => new Date(val)),
   seatsRequested: z.coerce.number().min(1, 'Numeric value only'),
   officePhone: z.string().optional().or(z.literal('')),
   website: z.string().optional().or(z.literal('')),
@@ -148,7 +148,19 @@ export const applyInstitute = async (req: Request, res: Response) => {
       data: newInstitute,
     });
   } catch (error: any) {
-    if (error instanceof z.ZodError) throw error;
+    if (error instanceof z.ZodError || error.name === 'ZodError') {
+      return sendError({
+        req,
+        res,
+        statusCode: 400,
+        message: 'Validation failed',
+        errors: error.errors?.map((e: any) => ({
+          field: (e.path || []).join('.'),
+          code: e.code,
+          message: e.message
+        })) || []
+      });
+    }
     return sendError({ req, res, statusCode: 500, message: error.message });
   }
 };
