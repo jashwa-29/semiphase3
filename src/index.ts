@@ -40,9 +40,38 @@ app.use(cors({
 app.use(express.json());
 app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
-// Add request ID middleware
-app.use((req: any, res: Response, next) => {
+// Add request ID and detailed request/response logger middleware
+app.use((req: any, res: any, next) => {
   req.requestId = uuidv4();
+  
+  const startTime = Date.now();
+  console.log(`\n--- 📥 [${req.requestId}] Incoming Request: ${req.method} ${req.originalUrl}`);
+  if (req.body && Object.keys(req.body).length > 0) {
+    const loggedBody = { ...req.body };
+    if (loggedBody.password) loggedBody.password = '[HIDDEN]';
+    console.log(`[${req.requestId}] Request Body:`, JSON.stringify(loggedBody, null, 2));
+  }
+
+  // Intercept res.json to log the response
+  const originalJson = res.json;
+  res.json = function (body: any) {
+    const duration = Date.now() - startTime;
+    console.log(`--- 📤 [${req.requestId}] Response JSON Sent: ${res.statusCode} (took ${duration}ms)`);
+    console.log(`[${req.requestId}] Response Body:`, JSON.stringify(body, null, 2));
+    return originalJson.apply(this, arguments);
+  };
+
+  // Intercept res.send to log the response
+  const originalSend = res.send;
+  res.send = function (body: any) {
+    const duration = Date.now() - startTime;
+    console.log(`--- 📤 [${req.requestId}] Response Send Sent: ${res.statusCode} (took ${duration}ms)`);
+    if (typeof body === 'string') {
+      console.log(`[${req.requestId}] Response Body:`, body.length > 500 ? body.substring(0, 500) + '...' : body);
+    }
+    return originalSend.apply(this, arguments);
+  };
+
   next();
 });
 
