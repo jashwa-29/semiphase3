@@ -50,6 +50,7 @@ app.use(cors({
 }));
 app.use(express.json());
 app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
+app.use('/api/uploads', express.static(path.join(__dirname, '../uploads')));
 
 // Add request ID and detailed request/response logger middleware
 app.use((req: any, res: any, next) => {
