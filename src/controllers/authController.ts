@@ -664,3 +664,24 @@ export const verifyEmail = async (req: Request, res: Response) => {
     return res.status(500).send(failureHtml('An unexpected server error occurred. Please try again later.'));
   }
 };
+
+export const checkStatus = async (req: Request, res: Response) => {
+  try {
+    const user = await User.findById(req.user._id);
+    if (!user) return sendError({ req, res, statusCode: 404, message: 'User not found' });
+    
+    return sendSuccess({
+      req,
+      res,
+      message: 'User status retrieved successfully',
+      data: {
+        isEmailVerified: user.isEmailVerified,
+        email: user.email,
+        name: user.name,
+        role: user.role
+      }
+    });
+  } catch (error: any) {
+    return sendError({ req, res, statusCode: 500, message: error.message });
+  }
+};
